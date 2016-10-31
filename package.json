@@ -1,0 +1,42 @@
+{
+  "name": "Less_bootstrap-grid_gulp-boilerplate",
+  "version": "1.0.0",
+  "description": "Simple gulp boilerplate ready to use for dev and distribution.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gulp boilerplate",
+    "less",
+    "bootstrap grid",
+    "less compiler",
+    "Purify css",
+    "image minification",
+    "autoprefixer",
+    "developing",
+    "production",
+    "distribution"
+  ],
+  "author": "Piotr Kaluza",
+  "license": "MIT",
+  "devDependencies": {
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-clean-css": "^2.0.13",
+    "gulp-concat": "^2.6.0",
+    "gulp-imagemin": "^3.1.0",
+    "gulp-less": "^3.1.0",
+    "gulp-purifycss": "^0.2.0",
+    "gulp-server-livereload": "^1.9.1",
+    "gulp-uglify": "^2.0.0",
+    "gulp-watch": "^4.3.10",
+    "run-sequence": "^1.2.2"
+  },
+  "dependencies": {
+    "bootstrap-grid": "^2.0.1",
+    "jquery": "^3.1.1"
+  }
+}
