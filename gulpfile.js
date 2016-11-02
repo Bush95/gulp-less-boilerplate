@@ -9,7 +9,8 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     purifyCss = require('gulp-purifycss'),
     runSequence = require('run-sequence'),
-    autoprefixer = require('gulp-autoprefixer');
+    autoprefixer = require('gulp-autoprefixer'),
+    plumber = require('gulp-plumber');
 
 gulp.task('build-clean', function () {
     return del(['dist', 'temp']);
@@ -17,6 +18,12 @@ gulp.task('build-clean', function () {
 
 gulp.task('styles', function() {
     return gulp.src('src/less/main.less')
+    .pipe(plumber({
+      handleError: function (err) {
+        console.log(err);
+        this.emit('end');
+      }
+    }))
     .pipe(less({compress: false}))
     .pipe(gulp.dest('temp/css'));
 });
