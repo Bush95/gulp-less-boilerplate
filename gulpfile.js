@@ -1,24 +1,22 @@
 var gulp = require('gulp'),
     less = require('gulp-less'),
     del = require('del'),
-    cleanCss = require('gulp-clean-css'),
-    imagemin = require('gulp-imagemin'),
     server = require('gulp-server-livereload'),
     concat = require('gulp-concat'),
-    cleanJs = require('gulp-clean'),
-    uglify = require('gulp-uglify'),
-    purifyCss = require('gulp-purifycss'),
     runSequence = require('run-sequence'),
-    autoprefixer = require('gulp-autoprefixer');
+    autoprefixer = require('gulp-autoprefixer'),
+    notify = require('gulp-notify'),
+    plumber = require('gulp-plumber');
 
 gulp.task('build-clean', function () {
-    return del(['dist', 'temp']);
+    return del(['dist']);
 });
 
 gulp.task('styles', function() {
     return gulp.src('src/less/main.less')
+    .pipe(plumber({errorHandler: notify.onError("Error: <%= error.message %>")}))
     .pipe(less({compress: false}))
-    .pipe(gulp.dest('temp/css'));
+    .pipe(gulp.dest('dist/css'));
 });
 
 gulp.task('copyIndex', function() {
@@ -36,50 +34,19 @@ gulp.task('copyImages', function() {
     .pipe(gulp.dest('dist/images'));
 });
 
-gulp.task('copyMinImages', function() {
-    return gulp.src('src/images/*')
-    .pipe(imagemin())
-    .pipe(gulp.dest('dist/images'));
-});
-
-gulp.task('concatBs', function () {
-    return gulp.src(['node_modules/bootstrap-grid/dist/grid.css', 'temp/css/main.css'])
-    .pipe(concat('main.css'))
-    .pipe(gulp.dest('temp/css'));
-});
-
-gulp.task('cleanJs', function () {
-    return gulp.src('temp/js/main.js')
-    .pipe(cleanJs())
-    .pipe(gulp.dest('temp/js'));
-});
-
-gulp.task('concatJs', function() {
-    return gulp.src(['node_modules/jquery/dist/jquery.min.js', 'src/js/main.js'])
-    .pipe(concat('main.js'))
-    .pipe(gulp.dest('temp/js'));
+gulp.task('copyJs', function() {
+    return gulp.src('src/js/main.js')
+    .pipe(gulp.dest('dist/js'));
 });
 
 gulp.task('minCss', function () {
-    return gulp.src('temp/css/main.css')
+    return gulp.src('css/main.css')
+    .pipe(plumber({errorHandler: notify.onError("Error: <%= error.message %>")}))
+    .pipe(less({compress: false}))
     .pipe(autoprefixer({
         browsers: ['last 2 versions'],
         cascade: false
     }))
-    .pipe(purifyCss(['dist/index.html', 'temp/js/main.js']))
-    .pipe(cleanCss({compatibility: 'ie8'}))
-    .pipe(gulp.dest('dist/css'));
-});
-
-gulp.task('minJs', function () {
-    return gulp.src('temp/js/main.js')
-    .pipe(uglify())
-    .pipe(gulp.dest('dist/js'));
-});
-
-
-gulp.task('devCss', function() {
-    return gulp.src('temp/css/main.css')
     .pipe(gulp.dest('dist/css'));
 });
 
@@ -90,8 +57,8 @@ gulp.task('devJs', function () {
 
 gulp.task('watch', function() {
     gulp.watch('src/index.html', ['copyIndex']);
-    gulp.watch('src/less/*', () => runSequence('styles', 'concatBs', 'devCss'));
-    gulp.watch('src/js/*.js', () => runSequence('concatJs', 'devJs'));
+    gulp.watch('src/less/*', ['styles']);
+    gulp.watch('src/js/*.js', ['copyJs']);
     gulp.watch('src/images/*', ['copyImages']);
 });
 
@@ -105,14 +72,11 @@ gulp.task('server', function() {
 
 gulp.task('dev', function () {
   runSequence('build-clean',
-              'cleanJs',
-              'concatJs',
+              'copyJs',
               'devJs',
               'copyIndex',
               'copyImages',
               'styles',
-              'concatBs',
-              'devCss',
               'server',
               'watch');
 });
@@ -124,12 +88,8 @@ gulp.task('production', function (callback) {
   runSequence('build-clean',
               'copyIndex',
               'copyFav',
-              'copyMinImages',
               'styles',
-              'concatJs',
-              'cleanJs',
-              'minJs',
-              'concatBs',
+              'copyJs',
               'minCss',
               callback);
   }
